@@ -3,7 +3,7 @@
 Only for Linux systems
   </p>
 
-![snake game gif](./docs/game-of-life.gif)
+![snake game gif](./docs/preview.gif)
 
 ## Build
 
