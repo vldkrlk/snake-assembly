@@ -3,3 +3,4 @@ bin
 local
 bin
 *.o
+*.out
