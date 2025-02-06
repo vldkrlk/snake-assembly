@@ -18,15 +18,13 @@ section .bss
     map resb MAP_NUMBER_OF_CHARS
     snake_x resb MAX_SNAKE_LENGTH
     snake_y resb MAX_SNAKE_LENGTH
-    direction resb 1
-    ; apple_x resb 1
-    ; apple_y resb 1
     timeval resq 2
 
 section .data
     current_snake_length dd 0
     apple_x db 10
     apple_y db 10
+    direction db DIRECTION_RIGHT
 
 section .text
 main:
@@ -42,6 +40,7 @@ main:
 
 .loop:
     ; read user input and set snake direction
+    ; TODO: disable moving to oposite side by one move
     call getch
     movzx dx, byte [direction]
     mov cx, DIRECTION_UP
@@ -57,10 +56,9 @@ main:
     cmp rax, 115
     cmove dx, cx
     mov [direction], dx
-
+    ; set x and y shift depend on current direction
     mov dx, 0 ; x shift
     mov ax, 0 ; y shift
-    
     mov cx, 1
     mov bl, byte [direction]
 
@@ -80,12 +78,10 @@ main:
     push rax
     call process_snake
     add rsp, 16
-    
     call create_map
     call print_map
-
     jmp .loop
-
+    
     mov eax, 0
     leave
     ret
@@ -159,7 +155,6 @@ create_map:
     mov [rbp - 8], edx ; x coord
     mov [rbp - 16], eax ; y coord
 
-
     mov edx, 0
 .snake_loop:
     cmp edx, dword [current_snake_length]
@@ -217,19 +212,14 @@ print_map:
 init_snake:
     push rbp
     mov rbp, rsp
-
-    mov [direction], byte DIRECTION_RIGHT
-
     ; init head
     mov [snake_x], byte 8
     mov [snake_y], byte 8  
-
+    ; add more snake parts
     call add_snake_part
     call add_snake_part
     call add_snake_part
-    call add_snake_part
-    call add_snake_part
-
+    
     mov rsp, rbp
     pop rbp
     ret
@@ -237,7 +227,7 @@ init_snake:
 spawn_apple:
     push rbp
     mov rbp, rsp
-
+    ; TODO: write better solution for spawning apples
     mov rax, 96                 ; syscall: sys_gettimeofday
     mov rdi, timeval            ; pointer to struct
     xor rsi, rsi                ; NULL timezone
